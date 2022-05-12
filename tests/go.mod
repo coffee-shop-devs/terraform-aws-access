@@ -1,4 +1,4 @@
-module basic.go
+module github.com/coffee-shop-devs/aws/aws-access.go
 
 go 1.18
 
