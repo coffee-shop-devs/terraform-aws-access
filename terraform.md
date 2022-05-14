@@ -123,6 +123,44 @@ Many times, variables need to be processed after an initial implementation is in
   this standard will prevent unnecessary changes to the variables and the config as a whole.
 Basically, place everything in locals so you don't have to worry about moving them there later.
 
+## Embedded Scripts Should Use Heredoc
+
+Try to limit the frequency of embedded scripts, preferring `file` and `templatefile` function calls.
+This allows CI to find and run shellcheck on all scripts (much harder to do if the script is embedded).
+When you must use an embedded script, use heredoc syntax to ensure that maintainers are able to easily parse the script.
+Example:
+```
+inline = [ <<-EOT
+    # this is a simple script
+    echo "hello world"
+  EOT
+]
+```
+```
+command = <<-EOT
+  # this is a simple script
+  echo "hello world"
+EOT
+```
+
+## Script Path in Connection Strings
+
+When you need to provision things (remote-exec) you often need to generate a connection block.
+Terraform by default copies remote-exec commands into a script on the remote machine, the default location for that script is /tmp.
+On SELinux this can cause issues running remote provisioners, to avoid this problem altogether, always include the "script_path" attribute in the connection block.
+Set the script path to some path available to the user you expect to run the script.
+
+## Remote Access Through SSH Agent
+
+The modules in this repo rely on a local SSH Agent for access to servers.
+This helps keep server access information from accidentally leaking into the repo.
+It is assumed that the user has a private/public ssh key pair for accessing servers over ssh,
+  and that the private key is loaded into the environment before Terraform is run.
+Modules will not include information for accessing servers remotely using a password,
+  Terraform generally records everything and there is too much risk of a shared password leaking.
+Modules will not generate or require private keys to be passed to Terraform, instead relying on SSH to manage that security aspect.
+
+
 ## Module Tiers
 
 Terraform allows infinite nesting of modules, be very deliberate about how modules are nested and why.
