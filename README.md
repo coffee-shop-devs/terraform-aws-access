@@ -11,12 +11,6 @@ You will need an API access key id and API secret key.
 Once you have an account, you can get the API keys following this tutorial: 
 https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey
 
-At this time I have no plans to automate management of:
-- IAM roles
-- User accounts
-- Root accounts
-- API Access keys
-
 The Terraform AWS provider uses the AWS Go SDK, which allows the use of either environment variables or config files for authentication.
 https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-settings
 
