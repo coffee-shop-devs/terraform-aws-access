@@ -1,40 +1,24 @@
-
 locals {
-    name      = var.name
-    cidr      = var.cidr
-    select    = ( var.select ? 1 : 0 )
-    provision = ( var.provision ? 1 : 0 )
+  name      = var.name
+  cidr      = var.cidr
+  select    = (var.select ? 1 : 0)
+  provision = (var.provision ? 1 : 0)
 }
-
 data "aws_vpc" "selected" {
   count = local.select
   filter {
-    name = "tag:Name"
+    name   = "tag:Name"
     values = [local.name]
   }
 }
 resource "aws_vpc" "new" {
   count      = local.provision
   cidr_block = local.cidr
-  assign_generated_ipv6_cidr_block = true
   tags = {
     Name = local.name
   }
+  assign_generated_ipv6_cidr_block = true
 }
-# resource "aws_route_table" "new" {
-#   count      = local.provision
-#   vpc_id     = aws_vpc.new[0].id
-#   route = []
-#   tags = {
-#     Name = local.name
-#   }
-# }
-# resource "aws_route" "internal" {
-#   count                  = local.provision
-#   route_table_id         = aws_route_table.new[0].id
-#   gateway_id             = "local"
-#   destination_cidr_block = local.cidr
-# }
 resource "aws_internet_gateway" "new" {
   count  = local.provision
   vpc_id = aws_vpc.new[0].id

@@ -5,7 +5,6 @@ module "TestPersonal" {
   source              = "../../"
   owner               = var.email
   ssh_key             = var.ssh_key
-  ip                  = var.ip
   ssh_key_name        = var.email
   security_group_name = var.email
   vpc_name            = "default"
