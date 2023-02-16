@@ -6,4 +6,4 @@ go.sum
 *.tfstate
 *.tfstate.*
 .tfstate.*
- 
+override.tf
