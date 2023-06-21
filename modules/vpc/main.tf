@@ -11,6 +11,11 @@ data "aws_vpc" "selected" {
     values = [local.name]
   }
 }
+module "vpc" {
+  count  = local.provision
+  source = ""
+}
+
 resource "aws_vpc" "new" {
   count      = local.provision
   cidr_block = local.cidr
