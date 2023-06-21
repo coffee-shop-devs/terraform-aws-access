@@ -30,28 +30,28 @@ Always explicitly state the dependencies of a module, even when they can be infe
 Most terraform modules have some hierarchy or order of operations.
 Terraform assumes that all resources can be provisioned at the same time, unless some indicator is given.
 Terraform is smart and if you reference a resource within another resource it can usually figure out the hierarchy, but this is inconsistent.
-Maintainers need to understand the order of operations when writing resources, 
+Maintainers need to understand the order of operations when writing resources,
   so it is very handy to have the dependencies explicitly expressed at the top of the resource.
 This looks somewhat messy and redundant in the code sometimes, but it often prevents race conditions and speeds up the development process.
 I find this also leads to improvements as developers tend to plan concurrency efficiently.
 
 ## Three Uses of Module
 
-Modules are used in three contexts:
+The word "Module" is used in three contexts:
 
-1. As a reference to an independent module published in a/the Terraform registry
+1. As a reference to an independent module published in a/the Terraform registry (Independent Module/XMod)
    - this reference is like a library call or an import statement (although it does have parameters)
    - the reference will be pulled in and compiled just before run time
-   - versions of this module must be pinned
-2. As a reference to a local module
+   - versions of this module must be pinned to prevent inconsistent builds
+2. As a reference to a local module (Local Module/LMod)
    - this reference is like a function call
    - it is integral (non separable) from the current module, but represents a segment of the overall goal
    - an example of this would be a security group and its rules
-     - while rules can be added separately from the group and are their own resources they do not make a lot of sense to have in their own module
+     - while rules can be added separately from the group and are their own resources they do not make a lot of sense to have in their own external module
      - it may be useful to separate out the rules from the group in logical form to keep top level (implementation) modules clean
-3. As an implementation of resources
-   - modules are generally considered a way to pull code into a terraform file, but eventually a root file must be created
-   - the root module implements and orchestrates a group of modules with the intent of actually provisioning resources (rather than just as a template)
+3. As an implementation of resources (Implementation Module/IMod)
+   - modules are generally considered a way to pull code into a terraform file, but eventually a "root" must be created
+   - the "root module" or "impementation module" orchestrates a group of modules with the intent of actually provisioning resources (rather than just as a template or library)
    - using the git ops paradigm the implementation module should be considered the source of truth for the infrastructure
    - implementation modules usually have important data about the implementation, and should be treated accordingly
      - it is better to hard code values into this module than use variables, so maintainers can easily understand what is in place
@@ -68,7 +68,7 @@ Consider if you have an unordered list of resources and you taint one,
   dependent resources refer to the order in the list and get different values for the resource,
   the dependent resources are unable to alter the ids of the dependency in the remote platform,
   they therefore are removed and recreated.
-  The result is that tainting a resource causes _every_ resource in that list to change, 
+  The result is that tainting a resource causes _every_ resource in that list to change,
   which cascades to all dependent resources, and their dependencies...
   This is how tainting one ssh key can destroy an entire infrastructure.
 The count attribute instead can be used as a flag to turn a resource on or off, like a feature flag.
@@ -111,14 +111,14 @@ When a resource is overridden it should be selected, validating that it exists f
 
 All ternary functions should be contained by parenthesis to avoid confusion.
 Example: `attribute = ( booleanVariable ? whenTrue : whenFalse )`
-This is especially helpful when using boolean expressions such as: 
+This is especially helpful when using boolean expressions such as:
 `attribute = ( variableToQuestion == "value" ? whenTrue : whenFalse )`
 
 ## All Variables Passed Through Locals
 
 All variables should be passed as into the locals block and only local variables should be referenced in resources.
 This reduces the need to change the same variable in many different places when it inevitably becomes necessary to make it more complex.
-Many times, variables need to be processed after an initial implementation is in place, 
+Many times, variables need to be processed after an initial implementation is in place,
   variables can not be processed in the variables section, and processing the variable in multiple places throughout the config is prone to error,
   this standard will prevent unnecessary changes to the variables and the config as a whole.
 Basically, place everything in locals so you don't have to worry about moving them there later.
@@ -129,6 +129,7 @@ Try to limit the frequency of embedded scripts, preferring `file` and `templatef
 This allows CI to find and run shellcheck on all scripts (much harder to do if the script is embedded).
 When you must use an embedded script, use heredoc syntax to ensure that maintainers are able to easily parse the script.
 Example:
+
 ```
 inline = [ <<-EOT
     # this is a simple script
@@ -136,6 +137,7 @@ inline = [ <<-EOT
   EOT
 ]
 ```
+
 ```
 command = <<-EOT
   # this is a simple script
@@ -156,32 +158,48 @@ The modules in this repo rely on a local SSH Agent for access to servers.
 This helps keep server access information from accidentally leaking into the repo.
 It is assumed that the user has a private/public ssh key pair for accessing servers over ssh,
   and that the private key is loaded into the environment before Terraform is run.
-Modules will not include information for accessing servers remotely using a password,
+Modules *won't* include information for accessing servers remotely using a password,
   Terraform generally records everything and there is too much risk of a shared password leaking.
-Modules will not generate or require private keys to be passed to Terraform, instead relying on SSH to manage that security aspect.
-
+Modules *won't* generate or require private keys to be passed to Terraform, instead relying on SSH to manage that security aspect.
 
 ## Module Tiers
 
 Terraform allows infinite nesting of modules, be very deliberate about how modules are nested and why.
 Nested modules are hard to troubleshoot and maintain, limiting the level of nesting is important.
 This paradigm was taken from the Pragmatic Programmers book.
-This nesting does not include implementation (root) modules.
+This nesting does not include implementation modules.
 Never nest local modules!
-There should not be more than 3 levels of nested (independent) modules:
+There shouldn't be more than 3 levels of nested independent modules: (Core, Primary, and Secondary)
 
 ### Core Modules
 
-these modules represent provider resources, they should not have any nesting
-core modules should only have resources, no modules
+These independent modules represent provider resources, they should not have any nested independant modules.
+Core Modules should only call resources.
 
 ### Primary Modules
 
-these modules represent groups of core modules, they should not call resources
-Primary Modules should only call Core Modules, no resources
+These independent modules represent groups of core modules, they should not call resources.
+Primary Modules should only call Core Modules.
 
 ### Secondary Modules
 
-these modules represent large systems, they should only call Primary Modules
-these should be very rare
+These modules represent large systems, they should only call Primary Modules.
+Secondary Modules should only call Primary Modules.
 
+## Test Size
+
+### Unit
+
+In this code base the smallest unit of code that is useful to test is the "local module".
+Each local module should have its own test in the examples section under "unit", usually this means overriding the other units.
+Please be careful when grouping resources into a local module, they should be as small as possible and logically coherent.
+
+### Integration
+
+In this code base an "integration" refers to testing multiple "units".
+Integration tests show that any two local modules work together.
+
+### E2E
+
+In this code base an "End to End" or "E2E" test refers to testing all of the units together.
+A module might have several E2E tests validating different configurations.
