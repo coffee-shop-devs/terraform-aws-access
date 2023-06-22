@@ -1,6 +1,6 @@
-# AWS-Access
+# AWS Access Module
 
-This module provides the basic necessities for provisioning and connecting to EC2 servers.
+This module provides the basic necessities for connecting to EC2 servers.
 
 This is a "Core Module", it shouldn't contain any nested "independent modules". Please see [terraform.md](./terraform.md) for more information.
 
