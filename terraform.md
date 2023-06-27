@@ -89,23 +89,22 @@ Selector files like this allow users to choose a configuration that makes sense 
 Most commonly, this is used for server configurations, but may also occur in other places like ami selection or higher level abstractions.
 Generally this should provide some examples of working configurations so that users do not need to scour provider documentation.
 
+## Select if Not Creating
+
+Forcing the user to select a resource if they are not creating it allows outputs to be normalized, which allows easier construction of modules at a higher level.
+If a "server" implementation module always returns information about a server, even when the information isn't necessary, then the composing module can just treat it like any other implementation of that module.
+This provides a separation of concerns around data and logic allowing for less work adapting to specific implementations.
+
 ## Idempotent Modules
 
 Terraform state allows modules to be idempotent within their context by default,
   but what if you want a module to be idempotent across an implementation (or multiple implementations)?
-Combining overrides, "count" as a feature flag, and data calls we are able to generate objects only when they need to exist.
+Combining "select if not creating", "count as a feature flag", and data calls we are able to generate objects only when they need to exist.
 This means you can have modules which stand alone, but are also composable.
 For instance, you should not need to provision a new VPC for every implementation, but for a module to stand alone it may require a VPC.
 This technique allows you to only generate a VPC once (or never, if you create it manually) by querying the provider before generating the resource.
 This also prevents users from having to know or pass the unique ids of resources into modules.
-Modules need overrides to accomplish this, the impetus is on the implementation module to apply the overrides as necessary.
-
-## Overrides
-
-Overrides are boolean variables which a user can pass to a module to prevent it from generating a resource.
-Generally this should be translated into two variables (select or provision),
- when a resource is not overridden (the default), it will be generated.
-When a resource is overridden it should be selected, validating that it exists for the rest of the module.
+Modules need selectors to accomplish this, usually in the form of some kind of name or default.
 
 ## Parenthesis Around Ternaries
 

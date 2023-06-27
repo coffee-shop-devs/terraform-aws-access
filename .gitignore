@@ -1,9 +1,7 @@
-go.sum
-.terraform
+.terraform*
 *.terraform.*
 *.terraform
-.terraform.*
-*.tfstate
-*.tfstate.*
-.tfstate.*
-override.tf
+terraform*
+override.*
+*_override.tf
+!terraform.md
