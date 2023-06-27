@@ -1,8 +1,8 @@
-# this test generates all objects
+
 module "TestBasic" {
   source              = "../../"
-  owner               = var.email
-  ssh_key             = var.ssh_key
+  owner               = "you@example.com"
+  ssh_key             = "ssh-type your+public+ssh+key+here you@example.com"
   vpc_cidr            = "10.0.0.0/16"
   vpc_name            = "default"
   subnet_name         = "default"
