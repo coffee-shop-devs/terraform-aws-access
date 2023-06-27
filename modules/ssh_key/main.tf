@@ -1,6 +1,6 @@
 locals {
-  select     = ( var.select ? 1 : 0 )
-  provision  = ( var.provision ? 1 : 0 )
+  select     = (var.select ? 1 : 0)
+  provision  = (var.provision ? 1 : 0)
   name       = var.name
   public_key = var.public_key
   owner      = var.owner
@@ -9,9 +9,10 @@ locals {
 data "aws_key_pair" "selected" {
   count = local.select
   filter {
-    name = "tag:Name"
+    name   = "tag:Name"
     values = [local.name]
   }
+  include_public_key = true
 }
 
 resource "aws_key_pair" "new" {
