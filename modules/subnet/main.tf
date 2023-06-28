@@ -1,21 +1,21 @@
 locals {
-  select    = ( var.select ? 1 : 0 )
-  provision = ( var.provision ? 1 : 0 )
-  vpc_id    = var.vpc_id
-  cidr      = var.cidr
-  name      = var.name
-  owner     = var.owner
+  select = (var.cidr == "" ? 1 : 0)
+  create = (var.cidr != "" ? 1 : 0)
+  name   = var.name
+  cidr   = var.cidr
+  vpc_id = var.vpc_id
+  owner  = var.owner
 }
 
 data "aws_subnet" "selected" {
   count = local.select
   filter {
-    name = "tag:Name"
+    name   = "tag:Name"
     values = [local.name]
   }
 }
 resource "aws_subnet" "new" {
-  count      = local.provision
+  count      = local.create
   vpc_id     = local.vpc_id
   cidr_block = local.cidr
   tags = {

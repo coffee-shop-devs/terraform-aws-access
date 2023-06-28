@@ -1,30 +1,30 @@
 
-variable "select" {
-  type = bool
-  description = "True if the module should select a subnet instead of creating one."
-}
-variable "provision" {
-  type = bool
-  description = "True if the module should create a new subnet instead of selecting one."
-}
 variable "name" {
-  type = string
-  description = "The name of the subnet to find or create."
-}
-
-# Optional, only used when creating a subnet
-variable "vpc_id" {
-  type = string
-  description = "The AWS unique id for the VPC which this subnet will be created in."
-  default = "" 
+  type        = string
+  description = <<-EOT
+    The name of the subnet to find or create.
+  EOT
 }
 variable "cidr" {
-  type = string
-  description = "The cidr for the subnet to create."
-  default = ""
+  type        = string
+  description = <<-EOT
+    The cidr for the subnet to create.
+    If this is specified a subnet will be created.
+    If this isn't specified, then the module will attempt to find a subnet with the given name.
+  EOT
+  default     = ""
+}
+variable "vpc_id" {
+  type        = string
+  description = <<-EOT
+    The AWS unique id for the VPC which this subnet will be created in.
+  EOT
+  default     = ""
 }
 variable "owner" {
-  type = string
-  description = "The owner to tag on the subnet when creating it."
-  default = ""
+  type        = string
+  description = <<-EOT
+    The owner to tag on the subnet when creating it.
+  EOT
+  default     = ""
 }

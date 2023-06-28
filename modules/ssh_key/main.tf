@@ -1,6 +1,6 @@
 locals {
-  select     = (var.select ? 1 : 0)
-  provision  = (var.provision ? 1 : 0)
+  select     = (var.public_key == "" ? 1 : 0)
+  create     = (var.public_key != "" ? 1 : 0)
   name       = var.name
   public_key = var.public_key
   owner      = var.owner
@@ -16,7 +16,7 @@ data "aws_key_pair" "selected" {
 }
 
 resource "aws_key_pair" "new" {
-  count      = local.provision
+  count      = local.create
   key_name   = local.name
   public_key = local.public_key
   tags = {

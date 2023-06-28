@@ -3,12 +3,11 @@
 # this will generate a ec2 key pair from a provided public key which you have the private key for (making it personal)
 module "TestPersonal" {
   source              = "../../"
-  owner               = var.email
-  ssh_key             = var.ssh_key
-  ssh_key_name        = var.email
-  security_group_name = var.email
-  vpc_name            = "default"
-  subnet_name         = "default"
-  vpc_override        = true
-  subnet_override     = true
+  owner               = "you@example.com"
+  vpc_name            = "default" # select the default vpc
+  subnet_name         = "default" # select the default subnet
+  security_group_name = "you"
+  security_group_type = "egress"
+  ssh_key_name        = "you"
+  ssh_key             = "ssh-abc yOur+key you@example.com"
 }

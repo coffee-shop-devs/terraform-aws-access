@@ -1,22 +1,20 @@
-variable "select" {
-  type = bool
-  description = "True if the module should select an ssh key instead of creating one."
-}
-variable "provision" {
-  type = bool
-  description = "True if the module should create a new ssh key instead of selecting one."
-}
+# all descriptions should use heredoc blocks
 variable "name" {
-  type = string
-  description = "The name of the ssh key to find or create."
+  type        = string
+  description = <<-EOT
+    The name of the ssh key to find or create.
+  EOT
 }
-
-# only used during creation
 variable "public_key" {
-  type = string
-  description = "The contents of the public key to create."
+  type        = string
+  description = <<-EOT
+    The contents of the public key to create.
+    If this is specified, then a public key object will be created.
+  EOT
+  default     = ""
 }
 variable "owner" {
-  type = string
+  type        = string
   description = "The owner to tag the public key with after creation."
+  default     = "terraform"
 }

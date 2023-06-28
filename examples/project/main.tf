@@ -3,12 +3,11 @@
 # this will generate a security group for your project's cidr
 module "TestProject" {
   source              = "../../"
-  owner               = var.email
-  vpc_name            = "default"
-  subnet_cidr         = var.cidr
+  owner               = "you@example.com"
+  vpc_name            = "default" # select the default vpc
   subnet_name         = "test"
+  subnet_cidr         = "10.1.1.0/24"
   security_group_name = "test"
-  ssh_key_name        = "default"
-  vpc_override        = true
-  ssh_key_override    = true
+  security_group_type = "egress"
+  ssh_key_name        = "default" # select your ssh key
 }
